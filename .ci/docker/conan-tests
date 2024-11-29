@@ -61,7 +61,6 @@ RUN apt-get update && \
         g++-11 \
         clang-14 \
         clang++-14 \
-        fish \
         gcc-arm-linux-gnueabihf \
         g++-arm-linux-gnueabihf \
         unzip \
@@ -75,7 +74,6 @@ RUN apt-get update && \
     # fix: asm/errno.h: No such file or directory
     ln -s /usr/include/asm-generic/ /usr/include/asm && \
     add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
-    add-apt-repository -y ppa:fish-shell/release-3 && \
     apt-get update && \
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
     add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable" && \
