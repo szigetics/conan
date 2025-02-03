@@ -32,10 +32,10 @@ class WSLRunner:
         self.raw_args = raw_args
 
         # to pass to wsl.exe (optional, otherwise run with defaults)
-        distro = host_profile.runner.get("distribution", None)
-        user = host_profile.runner.get("user", None)
+        distro = host_profile.runner.get("wsl.distribution", None)
+        user = host_profile.runner.get("wsl.user", None)
 
-        self.shared_cache = host_profile.runner.get("shared_cache", False)
+        self.shared_cache = host_profile.runner.get("wsl.shared_cache", False)
         if self.shared_cache:
             storage_path = Path(conan_api.config.home()) / 'p' # TODO: there's an API for this!!
             self.remote_conan_cache = subsystem_path("wsl", storage_path.as_posix())
@@ -49,13 +49,13 @@ class WSLRunner:
 
         raw_args[raw_args.index(self.args.path)] = current_path_wsl
         raw_args = " ".join(raw_args)
-
         with tempfile.TemporaryDirectory() as tmp_dir:
             if not self.shared_cache:
                 create_json = PureWindowsPath(tmp_dir).joinpath("create.json").as_posix()
                 raw_args += f" --format=json > {create_json}"
             tmp_dir_wsl = subsystem_path("wsl", tmp_dir)
             command = f"wsl.exe --cd {tmp_dir_wsl} -- CONAN_RUNNER_ENVIRONMENT=1 CONAN_HOME={self.remote_conan_home} {self.remote_conan} create {raw_args}"
+            print(command)
             rc = conan_run(command)
             if rc == 0 and not self.shared_cache:
                 create_json_wsl = subsystem_path("wsl", create_json)
@@ -98,7 +98,7 @@ class WSLRunner:
             self.remote_python_command = python
             conan_run(f"wsl.exe python3 -m venv {venv.as_posix()}")
             conan_run(f"wsl.exe {python} -m pip install pip wheel --upgrade")
-            conan_run(f"wsl.exe {python} -m pip install git+https://github.com/conan-io/conan@feature/docker_wrapper")
+            conan_run(f"wsl.exe {python} -m pip install git+https://github.com/conan-io/conan@pgi/wsl-runner")
             conan_run(f"wsl.exe CONAN_HOME={conan_home.as_posix()} {remote_conan} --version", stdout=stdout)
 
         remote_conan_version = stdout.getvalue().strip()
